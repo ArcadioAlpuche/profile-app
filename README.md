@@ -1,70 +1,77 @@
-# Getting Started with Create React App
+# Profile Tracker App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is a customizable profile tracking app built with React and Firebase. It supports uploading images, storing profile data in Firestore, and includes safety mechanisms like time-based data cleanup and rate-limiting.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- Add and view user profiles
+- Automatically delete demo data after 7 days (TTL)
+- Rate-limited writes to reduce abuse
+- Easily adaptable for different use cases (BJJ, classes, teams, etc.)
 
-### `npm start`
+## App Demo
+https://angelsprofileapp.netlify.app/
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Getting Started
 
-### `npm test`
+### 1. Clone the Repo
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```bash
+git clone https://github.com/ArcadioAlpuche/profile-app.git
+cd your-public-repo
+npm install
+```
+### 2. Set Up Firebase
+```
+You'll need to create your own Firebase project to use this app locally or in production.
 
-### `npm run build`
+a. Create a Firebase Project
+Go to Firebase Console
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Click "Add project" and follow the setup steps
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+b. Register a Web App
+In Project Settings → General, scroll to Your Apps
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Click the </> icon to create a Web app
 
-### `npm run eject`
+Copy the config object provided
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+c. Create .env.local File
+In the root of your project, create a file called .env.local:
+REACT_APP_FIREBASE_API_KEY=your_api_key_here
+REACT_APP_FIREBASE_AUTH_DOMAIN=your_auth_domain_here
+REACT_APP_FIREBASE_PROJECT_ID=your_project_id_here
+REACT_APP_FIREBASE_STORAGE_BUCKET=your_storage_bucket_here
+REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id_here
+REACT_APP_FIREBASE_APP_ID=your_app_id_here
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### 3. Start the App
+```
+npm start
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### Firebase Security Setup (Optional But Recommended)
+```
+To support rate limiting and automatic cleanup, update your Firestore rules:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    match /profiles/{profileId} {
+      allow read: if true;
+      allow write: if
+        !exists(/databases/$(database)/documents/profiles/$(profileId)) ||
+        request.time > resource.data.lastUpdated + duration.value(10, 's');
+    }
 
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+    match /{document=**} {
+      allow read: if true;
+    }
+  }
+}
+```
