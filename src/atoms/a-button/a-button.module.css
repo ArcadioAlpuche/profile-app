@@ -1,0 +1,32 @@
+.GFButton{
+  background-color: #c4ae5a;
+  color: #fff;
+  border: none;
+  padding: 6px 20px;
+  border-radius: 8px;
+  font-size: 1em;
+  font-family: Bebas Neue, sans-serif;
+  cursor: pointer;
+}
+
+.GFButton:hover{
+  background-color: #fff;
+  color: #c4ae5a;
+  border: 1px solid #c4ae5a;
+}
+
+.textButton{
+  border: none;
+  background-color: transparent;
+  text-decoration: underline;
+  font-weight: 500;
+  font-size: 1em;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'bebas-neue-regular',
+  sans-serif;
+}
+
+.textButton:hover{
+  font-weight: 700;
+  cursor: pointer;
+}

@@ -1,0 +1,10 @@
+.profileListContainer{
+  height: 80vh;
+  width: 45vw;
+}
+
+@media (max-width: 750px){
+  .profileListContainer{
+    width: 100vw;
+  }
+}

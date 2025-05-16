@@ -1,0 +1,22 @@
+.dropDownMenu{
+  width: 100%;
+}
+
+.dropDownMenu > div{
+  border: none;
+  border-bottom: 1px solid #e5e5e5;
+  border-right: 1px solid #e5e5e5;
+  border-radius: 0px;
+  box-shadow: none;
+  text-align: right;
+}
+
+.dropDownMenu > div:hover{
+  box-shadow: none;
+}
+
+@media (max-width: 750px){
+  .dropDownMenu > div{
+    text-align: left;
+  }
+}

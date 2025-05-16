@@ -1,0 +1,27 @@
+.container{
+  border: solid 1px #000;
+  border-radius: 20px;
+  padding: 50px;
+}
+
+.profileForm{
+max-width: 600px;
+min-width: 400px;
+margin: '1rem auto';
+}
+
+.inputBox{
+  border: none;
+}
+
+@media (max-width: 750px) {
+  .container {
+    padding: 0px;
+    border: none;
+    width: 80%;
+  }
+  .profileForm{
+    min-width: 0;
+    max-width: 100%;
+  }
+}

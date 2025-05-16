@@ -1,0 +1,11 @@
+.textInputLabel {
+  flex: 0 0 150px;
+  margin-right: 1rem;
+  font-weight: 500;
+}
+
+@media (max-width: 750px) {
+  .textInputLabel{
+    flex: 0;
+  }
+}
