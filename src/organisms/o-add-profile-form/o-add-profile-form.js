@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { db, storage } from '../../firebase';
-import { collection, addDoc, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, Timestamp, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { beltColors, roles } from '../../services/profile-options';
 import MTextInput from '../../molecule/m-text-input/m-text-input';
@@ -16,22 +16,27 @@ const OAddProfileForm = () => {
   const [location, setLocation] = useState('');
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
+  
     try {
       let imageUrl = '';
-
-      // If an image was uploaded, handle Firebase Storage upload
+  
+      // Upload image to Firebase Storage
       if (image) {
         const imageRef = ref(storage, `profile-images/${Date.now()}_${image.name}`);
         await uploadBytes(imageRef, image);
         imageUrl = await getDownloadURL(imageRef);
       }
-
-      // Add the profile to Firestore
+  
+      // Calculate TTL deleteAt timestamp (1 week from now)
+      const oneWeekFromNow = Timestamp.fromDate(
+        new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+      );
+  
+      // Add document to Firestore
       await addDoc(collection(db, 'profiles'), {
         name,
         beltRank,
@@ -39,8 +44,10 @@ const OAddProfileForm = () => {
         location,
         role,
         createdAt: Timestamp.now(),
+        deleteAt: oneWeekFromNow,        // For TTL auto-delete
+        lastUpdated: Timestamp.now(),    // For rate limiting
       });
-
+  
       // Reset form
       setName('');
       setBeltRank('');
@@ -55,6 +62,7 @@ const OAddProfileForm = () => {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className={styles.container}>
