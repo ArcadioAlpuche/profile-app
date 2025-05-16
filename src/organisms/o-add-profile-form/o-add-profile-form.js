@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { db, storage } from '../../firebase';
-import { collection, addDoc, Timestamp, doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, Timestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { beltColors, roles } from '../../services/profile-options';
 import MTextInput from '../../molecule/m-text-input/m-text-input';
