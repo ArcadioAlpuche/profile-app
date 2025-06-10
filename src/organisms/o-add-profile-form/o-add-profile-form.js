@@ -16,81 +16,83 @@ const OAddProfileForm = () => {
   const [location, setLocation] = useState('');
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
-  
+  const [error, setError] = useState(false);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-  
-    try {
-      let imageUrl = '';
-  
-      // Upload image to Firebase Storage
-      if (image) {
-        const imageRef = ref(storage, `profile-images/${Date.now()}_${image.name}`);
-        await uploadBytes(imageRef, image);
-        imageUrl = await getDownloadURL(imageRef);
+
+    if (name || location || beltRank || role) {
+      setLoading(true);
+      try {
+        let imageUrl = '';
+        // Upload image to Firebase Storage
+        if (image) {
+          const imageRef = ref(storage, `profile-images/${Date.now()}_${image.name}`);
+          await uploadBytes(imageRef, image);
+          imageUrl = await getDownloadURL(imageRef);
+        }
+
+        // Calculate TTL deleteAt timestamp (1 week from now)
+        const oneWeekFromNow = Timestamp.fromDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
+
+        // Add document to Firestore
+        await addDoc(collection(db, 'profiles'), {
+          name,
+          beltRank,
+          imageUrl,
+          location,
+          role,
+          createdAt: Timestamp.now(),
+          deleteAt: oneWeekFromNow, // For TTL auto-delete
+          lastUpdated: Timestamp.now(), // For rate limiting
+        });
+
+        // Reset form
+        setError(false);
+        setName('');
+        setBeltRank('');
+        setRole('Student');
+        setLocation('');
+        setImage(null);
+        alert('Profile added successfully!');
+      } catch (error) {
+        console.error('Error adding profile:', error);
+        alert('Something went wrong.');
+      } finally {
+        setLoading(false);
       }
-  
-      // Calculate TTL deleteAt timestamp (1 week from now)
-      const oneWeekFromNow = Timestamp.fromDate(
-        new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-      );
-  
-      // Add document to Firestore
-      await addDoc(collection(db, 'profiles'), {
-        name,
-        beltRank,
-        imageUrl,
-        location,
-        role,
-        createdAt: Timestamp.now(),
-        deleteAt: oneWeekFromNow,        // For TTL auto-delete
-        lastUpdated: Timestamp.now(),    // For rate limiting
-      });
-  
-      // Reset form
-      setName('');
-      setBeltRank('');
-      setRole('Student');
-      setLocation('');
-      setImage(null);
-      alert('Profile added successfully!');
-    } catch (error) {
-      console.error('Error adding profile:', error);
-      alert('Something went wrong.');
-    } finally {
-      setLoading(false);
+    } else {
+      setError(true);
     }
   };
-  
 
   return (
     <div className={styles.container}>
       <form onSubmit={handleSubmit} className={styles.profileForm}>
         <h2>Add New Profile</h2>
         <MTextInput
-          label="Name"
+          label="Name *"
           id="name"
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Enter full name"
         />
         <MTextInput
-          label="School Location"
+          label="School Location *"
           id="location"
           value={location}
           onChange={(e) => setLocation(e.target.value)}
           placeholder="Enter Location Details"
         />
         <MDropdownInput
-          label="Belt Rank"
+          label="Belt Rank *"
           id="beltRank"
           value={beltColors.find((option) => option.value === beltRank) || null}
           options={beltColors}
           onChange={(selectedOption) => setBeltRank(selectedOption?.value)}
         />
         <MDropdownInput
-          label="Role"
+          label="Role *"
           id="role"
           value={roles.find((option) => option.value === roles)}
           options={roles}
@@ -102,6 +104,11 @@ const OAddProfileForm = () => {
           onChange={(e) => setImage(e.target.files[0])}
           style={{ marginBottom: '1rem' }}
         /> */}
+        {error && (
+          <div className={styles.fieldsError}>
+            "Please make sure required fields are filled out before submitting."
+          </div>
+        )}
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'end' }}>
           <AButton type="submit" disabled={loading} text={loading ? 'Adding...' : 'Add Profile'} />
         </div>
